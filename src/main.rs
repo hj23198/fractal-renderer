@@ -115,7 +115,7 @@ impl mainthread {
                     channels.remove(i as usize);
                     break;
                 }
-                if p == 255{
+                if p == 299{
                     image.put_pixel(x, y, Rgb([0, 0, 0]));
                 } else {
                 image.put_pixel(x, y, *sample_image.get_pixel(p as u32, 0));
@@ -144,7 +144,11 @@ fn thread_target(xpoint:&Vec<f64>, ypoint:&Vec<f64>, imagexpoint:&Vec<u32>, repe
 
         for r in 0..*repetitions{
 
-            let pix:u32 = test_pixel(x, y, 500 as u32);
+            let mut pix:u32 = test_pixel(x, y, 500 as u32);
+            if pix == 0{
+                pix = 1;
+            }
+
             tx.send((imx as u32, r as u32, pix as u32));
             
             y += ychange;
@@ -190,7 +194,7 @@ fn test_pixel(x:f64, y:f64, rep:u32) -> u32 {
             return item % 299;
         }
     }
-    return 255;
+    return 299;
 }
 
 
