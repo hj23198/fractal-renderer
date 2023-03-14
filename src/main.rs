@@ -109,7 +109,7 @@ impl mainthread {
             for i in 0..channels.len(){
                 let (x, y, p) = channels[i as usize].recv().unwrap();
 
-                if x == 0 {
+                if x == 0 && y == 0 && p == 0 {
                     //handle thread exit 
                     threads.remove(i as usize);
                     channels.remove(i as usize);
