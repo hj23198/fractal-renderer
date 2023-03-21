@@ -1,5 +1,6 @@
 
-use image::Rgb;
+use image::imageops::FilterType::CatmullRom;
+use image::{Rgb, GenericImage, Rgba, Pixel};
 use std::{io, thread};
 use std::sync::mpsc::{self, Sender};
 
@@ -34,7 +35,7 @@ impl mainthread {
 
         let exe_path = std::env::current_exe().unwrap().parent().unwrap().join("grad.tiff");
         let sample_image = image::open(exe_path).unwrap().to_rgb8();
-        let mut image = image::RgbImage::new(self.xsize, self.ysize);
+        let mut image = image::DynamicImage::new_rgb8(self.xsize, self.ysize);
         let mut threads = vec![];
         let mut channels:Vec<mpsc::Receiver<(u32, u32, u32)>> = vec![];
         let x_change:f64 = self.zoom/self.xsize as f64;
@@ -116,9 +117,10 @@ impl mainthread {
                     break;
                 }
                 if p == 299{
-                    image.put_pixel(x, y, Rgb([0, 0, 0]));
+
+                    image.put_pixel(x, y, Rgba([0, 0, 0, 0]));
                 } else {
-                image.put_pixel(x, y, *sample_image.get_pixel(p as u32, 0));
+                image.put_pixel(x, y, sample_image.get_pixel(p as u32, 0).to_rgba());
                 }
                     
         
@@ -126,7 +128,10 @@ impl mainthread {
             }
         }
 
+    
+
     let exe_path = std::env::current_exe().unwrap().parent().unwrap().join("fractal_image.tiff");
+    //image = image.resize(1000, 1000, CatmullRom);
     image.save(exe_path);
 
 
@@ -144,7 +149,7 @@ fn thread_target(xpoint:&Vec<f64>, ypoint:&Vec<f64>, imagexpoint:&Vec<u32>, repe
 
         for r in 0..*repetitions{
 
-            let mut pix:u32 = test_pixel(x, y, 500 as u32);
+            let mut pix:u32 = test_pixel(x, y, 2000 as u32);
             if pix == 0{
                 pix = 1;
             }
@@ -191,7 +196,7 @@ fn test_pixel(x:f64, y:f64, rep:u32) -> u32 {
         i.add(inum { r: x, i: y });
 
         if (i.r*i.r)+(i.i*i.i) > 25.0 {
-            return item % 299;
+            return (item / 2)% 299;
         }
     }
     return 299;
